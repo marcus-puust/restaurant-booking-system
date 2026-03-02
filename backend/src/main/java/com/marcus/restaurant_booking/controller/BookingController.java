@@ -3,6 +3,8 @@ package com.marcus.restaurant_booking.controller;
 import com.marcus.restaurant_booking.model.Booking;
 import com.marcus.restaurant_booking.repository.BookingRepository;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDateTime;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.List;
 
@@ -16,11 +18,23 @@ public class BookingController {
         this.bookingRepository = bookingRepository;
     }
 
-    //GET all bookings
+    // GET all bookings OR bookings in time range
     @GetMapping
-    public List<Booking> getAllBookings() {
+    public List<Booking> getBookings(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime from,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime to
+    )   {
+        if (from != null && to != null) {
+            return bookingRepository
+                    .findByStartTimeGreaterThanEqualAndStartTimeLessThan(from, to);
+        }
         return bookingRepository.findAll();
-    }
+        }
 
     //GET booking by id
     @GetMapping("/{id}")
